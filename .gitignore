@@ -1,0 +1,4 @@
+# Contains files created while building.
+/target/
+# rustfmt backup files.
+**/*.rs.bk
