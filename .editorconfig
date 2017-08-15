@@ -1,0 +1,17 @@
+# This file is used to maintain a similar code style across editors.
+
+# Root config file.
+root = true
+
+[*]
+# Use UTF-8 for all source files.
+charset = utf-8
+# Use only LF as line break character, it's more efficient.
+end_of_line = lf
+
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.rs]
+indent_style = tab
+indent_size = 4
