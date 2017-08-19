@@ -1,0 +1,5 @@
+[package]
+name = "vm-common"
+version = "0.1.0"
+authors = ["Gabriel Majeri <gabriel.majeri6@gmail.com>"]
+publish = false
