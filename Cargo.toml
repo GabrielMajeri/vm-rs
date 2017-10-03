@@ -4,12 +4,17 @@ version = "0.1.0"
 authors = ["Gabriel Majeri <gabriel.majeri6@gmail.com>"]
 
 [dependencies]
+env_logger = "*"
+
 x86 = { path = "arches/x86", optional = true }
 
-env_logger = "*"
+[target.'cfg(target_os = "linux")'.dependencies]
+kvm = { path = "vmm/kvm", optional = true }
 
 [features]
 default = [
+	"x86",
+	"kvm",
 ]
 
 [workspace]
