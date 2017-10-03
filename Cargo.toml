@@ -4,15 +4,12 @@ version = "0.1.0"
 authors = ["Gabriel Majeri <gabriel.majeri6@gmail.com>"]
 
 [dependencies]
-vm-common = { path = "vm-common" }
 x86 = { path = "arches/x86", optional = true }
-hax = { path = "hax", optional = true }
 
 env_logger = "*"
 
 [features]
 default = [
-	"hax"
 ]
 
 [workspace]
