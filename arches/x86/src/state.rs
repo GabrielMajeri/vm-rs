@@ -23,7 +23,7 @@ pub struct Segment {
 	pub flags: u16
 }
 
-/// Stores the state for an x86_64 CPU.
+/// Stores the state for an `x86_64` CPU.
 #[derive(Debug, Copy, Clone)]
 pub struct State {
 	/// This is a short list of the general-purpose registers.
@@ -96,12 +96,12 @@ impl Default for State {
 
 		// TODO: this is supposed to be 0xn0600, where n is extended model value (what is that?).
 		// For now, it is 1.
-		r[2] = 0x10600;
+		r[2] = 0x1_0600;
 
 		// We must start at 16 bytes before 4 GiB.
 		let ip = 0xFFF0;
 		let cs = Segment {
-			base: 0xFFFF0000,
+			base: 0xFFFF_0000,
 			selector: 0xF000,
 			limit: 0xFFFF,
 			// Accessed, readable, user, present.
