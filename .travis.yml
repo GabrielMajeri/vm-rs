@@ -1,0 +1,6 @@
+language: rust
+sudo: required
+cache: cargo
+script:
+  - cargo build --all
+  - cargo test --all
