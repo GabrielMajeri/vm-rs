@@ -48,7 +48,7 @@ impl Device {
 
         let fd = ioctl_none(self.fd, code, vm_type)?;
 
-        VirtualMachine::new(fd)
+        VirtualMachine::new(self, fd)
     }
 
     fn check_api_version(&self) -> Result<()> {
@@ -89,6 +89,14 @@ impl Device {
             Ok(value) => value as u32,
             _ => 0,
         }
+    }
+
+    pub(crate) fn vcpu_mmap_size(&self) -> Result<usize> {
+        let code = io!(KVM_IO, 0x04);
+
+        let size = ioctl_none(self.fd, code, 0)?;
+
+        Ok(size as usize)
     }
 }
 

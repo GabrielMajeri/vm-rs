@@ -11,6 +11,8 @@ extern crate error_chain;
 #[macro_use]
 extern crate nix;
 
+extern crate vm_x86;
+
 // Stuck with this manually using `libc` until
 // https://github.com/nix-rust/nix/issues/781
 // gets resolved.
@@ -45,3 +47,11 @@ pub use vm::VirtualMachine;
 
 mod vcpu;
 pub use vcpu::VirtualCPU;
+
+
+#[cfg(test)]
+#[macro_use]
+extern crate lazy_static;
+
+#[cfg(test)]
+mod tests;

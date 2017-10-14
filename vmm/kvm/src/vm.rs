@@ -1,6 +1,5 @@
 use errors::Result;
-use VirtualCPU;
-use {ioctl_none, RawFd, KVM_IO};
+use {Device, VirtualCPU, ioctl_none, RawFd, KVM_IO};
 
 use nix::unistd::close;
 
@@ -8,13 +7,14 @@ use nix::unistd::close;
 ///
 /// VM functions must not be accessed from another process / address space.
 #[derive(Debug)]
-pub struct VirtualMachine {
+pub struct VirtualMachine<'device> {
+    device: &'device Device,
     fd: RawFd,
 }
 
-impl VirtualMachine {
-    pub(crate) fn new(fd: RawFd) -> Result<Self> {
-        let vm = VirtualMachine { fd };
+impl<'a> VirtualMachine<'a> {
+    pub(crate) fn new(device: &'a Device, fd: RawFd) -> Result<Self> {
+        let vm = VirtualMachine { device, fd };
 
         Ok(vm)
     }
@@ -26,11 +26,15 @@ impl VirtualMachine {
         // TODO: multiple vcpus.
         let fd = ioctl_none(self.fd, code, 0)?;
 
-        VirtualCPU::new(fd)
+        VirtualCPU::new(self, fd)
+    }
+
+    pub(crate) fn device(&self) -> &Device {
+        self.device
     }
 }
 
-impl Drop for VirtualMachine {
+impl<'a> Drop for VirtualMachine<'a> {
     fn drop(&mut self) {
         close(self.fd).unwrap();
     }
