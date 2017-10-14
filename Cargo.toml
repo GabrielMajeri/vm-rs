@@ -4,8 +4,6 @@ version = "0.1.0"
 authors = ["Gabriel Majeri <gabriel.majeri6@gmail.com>"]
 
 [dependencies]
-env_logger = "*"
-
 vm-x86 = { path = "arches/x86", optional = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
