@@ -1,3 +1,6 @@
 language: rust
 sudo: false
 cache: cargo
+script:
+  - cargo build --all
+  - cargo test --all
