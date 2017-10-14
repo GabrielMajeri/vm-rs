@@ -6,14 +6,14 @@ authors = ["Gabriel Majeri <gabriel.majeri6@gmail.com>"]
 [dependencies]
 env_logger = "*"
 
-x86 = { path = "arches/x86", optional = true }
+vm-x86 = { path = "arches/x86", optional = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 kvm = { path = "vmm/kvm", optional = true }
 
 [features]
 default = [
-	"x86",
+	"vm-x86",
 	"kvm",
 ]
 
