@@ -1,5 +1,6 @@
 use {VirtualMachine, RawFd, KVM_IO};
 use errors::Result;
+use object::Object;
 
 use nix::unistd::close;
 use nix::sys::mman::{mmap, munmap, PROT_READ, PROT_WRITE, MAP_SHARED};
@@ -36,10 +37,8 @@ impl<'a> VirtualCPU<'a> {
                 mem::transmute(run_ptr)
             };
 
-
             VirtualCPU { vm, fd, run }
         };
-
 
         Ok(vcpu)
     }
@@ -141,6 +140,12 @@ impl<'a> Drop for VirtualCPU<'a> {
         }
 
         close(self.fd).unwrap();
+    }
+}
+
+impl<'a> Object for VirtualCPU<'a> {
+    fn fd(&self) -> RawFd {
+        self.fd
     }
 }
 

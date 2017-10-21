@@ -1,9 +1,9 @@
 use errors::Result;
 use std::fs::File;
 use ext::Extension;
-use VirtualMachine;
+use object::Object;
 
-use {ioctl_none, KVM_IO, RawFd};
+use {ioctl_none, KVM_IO, RawFd, VirtualMachine};
 
 use nix::unistd::close;
 
@@ -79,18 +79,6 @@ impl Device {
         }
     }
 
-    /// Checks if a given extension is supported by KVM.
-    fn extension_supported(&self, extension: Extension) -> u32 {
-        let code = io!(KVM_IO, 0x03);
-
-        let supported = ioctl_none(self.fd, code, extension as u32);
-
-        match supported {
-            Ok(value) => value as u32,
-            _ => 0,
-        }
-    }
-
     pub(crate) fn vcpu_mmap_size(&self) -> Result<usize> {
         let code = io!(KVM_IO, 0x04);
 
@@ -103,5 +91,11 @@ impl Device {
 impl Drop for Device {
     fn drop(&mut self) {
         close(self.fd).unwrap();
+    }
+}
+
+impl Object for Device {
+    fn fd(&self) -> RawFd {
+        self.fd
     }
 }

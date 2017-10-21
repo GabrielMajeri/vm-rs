@@ -39,6 +39,8 @@ pub mod errors;
 
 mod ext;
 
+mod object;
+
 mod device;
 pub use device::Device;
 
