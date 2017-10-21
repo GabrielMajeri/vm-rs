@@ -135,7 +135,7 @@ impl<'a> Drop for VirtualCPU<'a> {
     fn drop(&mut self) {
         unsafe {
             let run_ptr = mem::transmute::<&_, *mut _>(self.run);
-            let size = mem::size_of::<RunState>();
+            let size = self.vm.device().vcpu_mmap_size().unwrap();
             munmap(run_ptr, size).unwrap();
         }
 

@@ -66,7 +66,14 @@ impl Device {
     }
 
     fn check_required_extensions(&self) -> Result<()> {
-        const REQUIRED: &[Extension] = &[Extension::UserMemory];
+        const REQUIRED: &[Extension] = {
+            use ext::Extension::*;
+
+            &[
+                UserMemory,
+                ReadOnlyMemory,
+            ]
+        };
 
         let supported = REQUIRED.iter().all(
             |&ext| self.extension_supported(ext) == 1,

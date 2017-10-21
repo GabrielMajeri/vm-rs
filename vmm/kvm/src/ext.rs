@@ -7,4 +7,5 @@
 pub enum Extension {
     UserMemory = 3,
     MaxVCPUs = 9,
+    ReadOnlyMemory = 81,
 }

@@ -11,6 +11,9 @@ extern crate error_chain;
 #[macro_use]
 extern crate nix;
 
+#[macro_use]
+extern crate bitflags;
+
 extern crate vm_x86;
 
 // Stuck with this manually using `libc` until
