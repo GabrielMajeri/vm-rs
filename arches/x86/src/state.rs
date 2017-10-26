@@ -1,3 +1,5 @@
+//! Structures representing the x86 processor state.
+
 /// Stores information about a memory segment.
 #[derive(Debug, Copy, Clone)]
 pub struct Segment {
@@ -129,28 +131,5 @@ impl Default for State {
             // The CD and NW flags and bit 4 are set.
             cr0: (1 << 30) | (1 << 29) | (1 << 4),
         }
-    }
-}
-
-/// Contains all the architectural MSRs.
-#[derive(Debug, Copy, Clone)]
-pub struct MSRState {
-    /// The time-stamp counter.
-    pub tsc: u64,
-    /// The SYSENTER code segment.
-    pub sysenter_cs: u64,
-}
-
-/// Contains the x87 FPU and SSE state.
-#[derive(Debug, Copy, Clone)]
-pub struct FPUState {
-    /// The status word of the FPU.
-    // TODO: use a bitfield
-    pub status: u16,
-}
-
-impl Default for FPUState {
-    fn default() -> Self {
-        FPUState { status: 0 }
     }
 }

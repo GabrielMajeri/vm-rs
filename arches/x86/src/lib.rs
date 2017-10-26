@@ -3,11 +3,13 @@
 #![warn(missing_docs)]
 #![cfg_attr(feature = "cargo-clippy", warn(clippy))]
 
-/// Structures representing the x86 processor state.
+#[macro_use]
+extern crate bitflags;
+
 pub mod state;
 
-/// Support for model-specific registers.
+pub mod fpu;
+
 pub mod msr;
 
-/// Structures and enums for Intel's Virtual Machine Extensions.
 pub mod vmx;

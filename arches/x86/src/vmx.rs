@@ -1,3 +1,5 @@
+//! Structures and enums for Intel's Virtual Machine Extensions.
+
 /// These are the VMX basic exit reasons.
 ///
 /// You can find them in the appendix from the Intel Architecture Manual, Vol. 3.
