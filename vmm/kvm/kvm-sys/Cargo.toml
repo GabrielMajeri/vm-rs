@@ -1,0 +1,9 @@
+[package]
+name = "kvm-sys"
+version = "0.1.0"
+authors = ["Gabriel Majeri <gabriel.majeri6@gmail.com>"]
+publish = false
+
+[dependencies]
+nix = "0.9"
+bitflags = "1"
