@@ -6,10 +6,6 @@ publish = false
 
 [dependencies]
 error-chain = "0.11"
-nix = "0.9"
-libc = "0.2"
+accel = { path = "../accel" }
+kvm-sys = { path = "kvm-sys" }
 vm-x86 = { path = "../../arches/x86" }
-bitflags = "1"
-
-[dev-dependencies]
-lazy_static = "0.2"
