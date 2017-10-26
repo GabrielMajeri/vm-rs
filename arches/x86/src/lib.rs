@@ -1,6 +1,7 @@
 //! Contains structures and functions for the x86 architecture.
 
-#![cfg_attr(feature = "cargo-clippy", deny(warnings, missing_docs, clippy))]
+#![warn(missing_docs)]
+#![cfg_attr(feature = "cargo-clippy", warn(clippy))]
 
 /// Structures representing the x86 processor state.
 pub mod state;
