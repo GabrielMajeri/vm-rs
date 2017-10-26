@@ -26,13 +26,12 @@ extern crate kvm_sys as kvm;
 
 extern crate vm_x86 as x86;
 
-pub mod errors;
 mod global;
 mod vm;
 mod vcpu;
 
 /// Creates an object which implements the `Accelerator` trait.
-pub fn create() -> errors::Result<Box<accel::Accelerator>> {
+pub fn create() -> accel::errors::Result<Box<accel::Accelerator>> {
     let global = global::Global::new()?;
     Ok(Box::new(global))
 }

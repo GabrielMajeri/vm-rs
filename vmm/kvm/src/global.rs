@@ -2,9 +2,8 @@
 //! query supported capabilities, and set process-wide settings.
 
 use std::fs::File;
-use errors;
-use errors::{Result, ErrorKind};
 use accel;
+use accel::errors::{Result};
 use kvm;
 use kvm::Capability;
 use vm::VirtualMachine;
@@ -41,7 +40,7 @@ impl Global {
 
         // Version has to match exactly.
         if current != expected {
-            bail!(ErrorKind::UnsupportedVersion(current, expected));
+            bail!("unsupported KVM version: expected {}, got {}", expected, current);
         }
 
         Ok(())
@@ -71,7 +70,7 @@ impl Global {
     pub fn require_capability(&self, cap: Capability) -> Result<()> {
         if self.check_capability(cap)? == 0 {
             let cap_name = format!("{:?}", cap);
-            bail!(ErrorKind::UnsupportedCapability(cap_name))
+            bail!("KVM capability not supported: {}", cap_name)
         } else {
             Ok(())
         }
@@ -86,8 +85,16 @@ impl Global {
 }
 
 impl accel::Accelerator for Global {
-    fn create_vm<'a>(&'a self) -> accel::Result<Box<accel::VirtualMachine + 'a>> {
-        let vm = VirtualMachine::new(self);
+    fn create_vm<'a>(&'a self) -> Result<Box<accel::VirtualMachine + 'a>> {
+        // This is only relevant for non-x86.
+        let machine_type = 0;
+
+        let fd = unsafe { kvm::create_vm(self.fd(), machine_type)? };
+
+        use std::os::unix::io::FromRawFd;
+        let file = unsafe { File::from_raw_fd(fd as i32) };
+
+        let vm = VirtualMachine::new(self, file)?;
 
         Ok(Box::new(vm))
     }
@@ -100,5 +107,15 @@ mod tests {
     #[test]
     fn create() {
         Global::new().expect("Failed to connect to KVM kernel module");
+    }
+
+    #[test]
+    fn create_vm() {
+        use accel::Accelerator;
+
+        let g = Global::new().unwrap();
+
+        g.create_vm()
+            .expect("Failed to create virtual machine");
     }
 }

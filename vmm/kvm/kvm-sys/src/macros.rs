@@ -16,7 +16,7 @@ pub fn convert(result: nix::Result<nix::libc::c_int>) -> Result {
     })
 }
 
-pub macro kvm_ioctl_none($name:ident with $code:expr) {
+pub macro kvm_ioctl_none_arg($name:ident with $code:expr) {
     pub unsafe fn $name(fd: RawFd, data: i32) -> Result {
         let code = io!(KVM_IO, $code);
 
@@ -24,7 +24,7 @@ pub macro kvm_ioctl_none($name:ident with $code:expr) {
     }
 }
 
-pub macro kvm_ioctl($name:ident with $code:expr) {
+pub macro kvm_ioctl_none($name:ident with $code:expr) {
     pub unsafe fn $name(fd: RawFd) -> Result {
         ioctl!(none $name with KVM_IO, $code);
         convert($name(fd))

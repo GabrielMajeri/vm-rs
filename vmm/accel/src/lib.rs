@@ -6,14 +6,13 @@
 #[macro_use]
 extern crate error_chain;
 
-mod errors;
-pub use errors::{Result, Error};
+pub mod errors;
 
 /// An accelerator takes advantage of hardware features to enable
 /// fast virtualization.
 pub trait Accelerator {
     /// Create a virtual machine.
-    fn create_vm<'a>(&'a self) -> Result<Box<VirtualMachine<'a> + 'a>>;
+    fn create_vm<'a>(&'a self) -> errors::Result<Box<VirtualMachine<'a> + 'a>>;
 }
 
 /// A virtual machine is a group of resources such as virtual CPUs,
