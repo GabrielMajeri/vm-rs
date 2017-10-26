@@ -18,8 +18,12 @@ pub trait Accelerator {
 /// A virtual machine is a group of resources such as virtual CPUs,
 /// memory and hardware devices.
 pub trait VirtualMachine<'a> {
+    /// Create a new virtual CPU.
+    ///
+    /// The slot is a unique number identifing this CPU.
+    fn create_vcpu<'b>(&'b self, slot: usize) -> errors::Result<Box<VirtualCPU<'b> + 'b>>;
 }
 
 /// A virtual CPU represents a single hardware-thread in the guest VM.
-pub trait VirtualCPU {
+pub trait VirtualCPU<'a> {
 }

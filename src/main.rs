@@ -10,6 +10,9 @@ fn main() {
     let acc = kvm::create()
         .expect("Failed to create accelerator");
 
-    let _vm = acc.create_vm()
+    let vm = acc.create_vm()
         .expect("Failed to create VM");
+
+    let _vcpu = vm.create_vcpu(0)
+        .expect("Failed to create vCPU");
 }

@@ -4,6 +4,7 @@ use global::Global;
 use std::fs::File;
 use kvm;
 use kvm::Capability;
+use vcpu::VirtualCPU;
 
 pub struct VirtualMachine<'a> {
     global: &'a Global,
@@ -77,7 +78,20 @@ impl<'a> VirtualMachine<'a> {
     }
 }
 
-impl<'a> accel::VirtualMachine<'a> for VirtualMachine<'a> {}
+impl<'a> accel::VirtualMachine<'a> for VirtualMachine<'a> {
+    fn create_vcpu<'b>(&'b self, slot: usize) -> Result<Box<accel::VirtualCPU<'b> + 'b>> {
+        let slot = slot as i32;
+
+        let fd = unsafe { kvm::create_vcpu(self.fd(), slot)? };
+
+        use std::os::unix::io::FromRawFd;
+        let file = unsafe { File::from_raw_fd(fd as i32) };
+
+        let vcpu = VirtualCPU::new(self, file)?;
+
+        Ok(Box::new(vcpu))
+    }
+}
 
 #[cfg(test)]
 mod tests {
