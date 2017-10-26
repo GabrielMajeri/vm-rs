@@ -4,15 +4,8 @@ version = "0.1.0"
 authors = ["Gabriel Majeri <gabriel.majeri6@gmail.com>"]
 
 [dependencies]
-vm-x86 = { path = "arches/x86", optional = true }
-
-[target.'cfg(target_os = "linux")'.dependencies]
-kvm = { path = "vmm/kvm", optional = true }
-
-[features]
-default = [
-	"vm-x86",
-	"kvm",
-]
+vm-x86 = { path = "arches/x86" }
+accel = { path = "vmm/accel" }
+kvm = { path = "vmm/kvm" }
 
 [workspace]
