@@ -31,6 +31,13 @@ pub macro kvm_ioctl_none($name:ident with $code:expr) {
     }
 }
 
+pub macro kvm_ioctl_r($name:ident with $code:expr; $st:ty) {
+    pub unsafe fn $name(fd: RawFd, data: *mut $st) -> Result {
+        ioctl!(read $name with KVM_IO, $code; $st);
+        convert($name(fd, data))
+    }
+}
+
 pub macro kvm_ioctl_rw($name:ident with $code:expr; $st:ty) {
     pub unsafe fn $name(fd: RawFd, data: *mut $st) -> Result {
         ioctl!(readwrite $name with KVM_IO, $code; $st);

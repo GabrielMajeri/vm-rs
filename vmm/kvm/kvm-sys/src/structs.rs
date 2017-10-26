@@ -1,10 +1,10 @@
-use std::{fmt, mem};
+use std::fmt;
 
 /// Header of CPUID entries array.
 ///
 /// You must allocate a contiguous array of `CpuidEntry`,
 /// with this structure as a header.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 #[repr(C)]
 pub struct CpuidHeader {
     /// Number of entries in the array.
@@ -12,7 +12,7 @@ pub struct CpuidHeader {
     _padding: u32,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Default, Copy, Clone)]
 #[repr(C)]
 pub struct CpuidEntry {
     /// The value of EAX used to obtain this entry.
@@ -47,14 +47,9 @@ impl fmt::Debug for CpuidEntry {
     }
 }
 
-impl Default for CpuidEntry {
-    fn default() -> Self {
-        unsafe { mem::zeroed() }
-    }
-}
-
 bitflags! {
     /// Flags for a CPUID entry.
+    #[derive(Default)]
     pub struct CpuidFlag: u32 {
         /// The `index` field is valid.
         const SIGNIFICANT_INDEX = 1;
@@ -67,6 +62,27 @@ bitflags! {
         /// the CPU will read.
         const STATEFUL_READ_NEXT = 4;
     }
+}
+
+#[derive(Debug, Copy, Clone)]
+#[repr(C)]
+pub struct FpuState {
+    pub regs: [[u64; 2]; 8],
+    pub control_word: u16,
+    pub status_word: u16,
+    /// In `FXSTOR` single-byte format.
+    pub tag_word: u8,
+    _padding1: u8,
+    pub last_opcode: u16,
+    /// Last instruction pointer.
+    pub last_ip: u64,
+    /// Last data pointer.
+    pub last_dp: u64,
+    /// Contents of SSE / AVX registers.
+    pub xmm: [[u64; 2]; 16],
+    /// SSE control / status register.
+    pub mxcsr: u32,
+    _padding2: u32,
 }
 
 #[cfg(test)]
