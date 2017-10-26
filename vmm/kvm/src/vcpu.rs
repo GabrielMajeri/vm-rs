@@ -11,12 +11,10 @@ pub struct VirtualCPU<'a> {
 impl<'a> VirtualCPU<'a> {
     /// Initializes the virtual CPU.
     pub fn new(vm: &'a VirtualMachine, file: File) -> Result<Self> {
-       let vcpu = VirtualCPU { vm, file };
+        let vcpu = VirtualCPU { vm, file };
 
-       Ok(vcpu)
+        Ok(vcpu)
     }
 }
 
-impl<'a> accel::VirtualCPU<'a> for VirtualCPU<'a> {
-
-}
+impl<'a> accel::VirtualCPU<'a> for VirtualCPU<'a> {}

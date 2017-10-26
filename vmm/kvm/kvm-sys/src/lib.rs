@@ -6,6 +6,8 @@ extern crate nix;
 #[macro_use]
 extern crate bitflags;
 
+extern crate vm_x86 as x86;
+
 mod macros;
 
 mod errors;

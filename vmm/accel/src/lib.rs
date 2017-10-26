@@ -18,12 +18,24 @@ pub trait Accelerator {
 /// A virtual machine is a group of resources such as virtual CPUs,
 /// memory and hardware devices.
 pub trait VirtualMachine<'a> {
+    /// Recommended maximum number for virtual CPUs.
+    fn max_recommended_vcpus(&self) -> errors::Result<usize>;
+
+    /// Maximum possible number of vCPUs.
+    ///
+    /// Trying to allocate more than this many vCPUs will certainly
+    /// result in an error.
+    fn max_vcpus(&self) -> errors::Result<usize>;
+
+    /// Maximum value for a virtual CPU's ID.
+    fn max_vcpu_ids(&self) -> errors::Result<usize>;
+
     /// Create a new virtual CPU.
     ///
-    /// The slot is a unique number identifing this CPU.
-    fn create_vcpu<'b>(&'b self, slot: usize) -> errors::Result<Box<VirtualCPU<'b> + 'b>>;
+    /// The `id` is a unique number identifying this CPU.
+    /// On x86, this will become the APIC ID of the vCPU.
+    fn create_vcpu<'b>(&'b self, id: usize) -> errors::Result<Box<VirtualCPU<'b> + 'b>>;
 }
 
 /// A virtual CPU represents a single hardware-thread in the guest VM.
-pub trait VirtualCPU<'a> {
-}
+pub trait VirtualCPU<'a> {}

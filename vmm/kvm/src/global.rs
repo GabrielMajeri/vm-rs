@@ -3,7 +3,7 @@
 
 use std::fs::File;
 use accel;
-use accel::errors::{Result};
+use accel::errors::Result;
 use kvm;
 use kvm::Capability;
 use vm::VirtualMachine;
@@ -40,7 +40,11 @@ impl Global {
 
         // Version has to match exactly.
         if current != expected {
-            bail!("unsupported KVM version: expected {}, got {}", expected, current);
+            bail!(
+                "unsupported KVM version: expected {}, got {}",
+                expected,
+                current
+            );
         }
 
         Ok(())
@@ -115,7 +119,6 @@ mod tests {
 
         let g = Global::new().unwrap();
 
-        g.create_vm()
-            .expect("Failed to create virtual machine");
+        g.create_vm().expect("Failed to create virtual machine");
     }
 }

@@ -32,10 +32,7 @@ impl<'a> VirtualMachine<'a> {
 
     /// Checks to ensure required capabilities are present.
     fn check_required_capabilities(&self) -> Result<()> {
-        const REQUIRED: &[Capability] = &[
-            Capability::IrqChip,
-            Capability::UserMemory,
-        ];
+        const REQUIRED: &[Capability] = &[Capability::IrqChip, Capability::UserMemory];
 
         for &cap in REQUIRED {
             self.require_capability(cap)?;
@@ -79,6 +76,24 @@ impl<'a> VirtualMachine<'a> {
 }
 
 impl<'a> accel::VirtualMachine<'a> for VirtualMachine<'a> {
+    fn max_recommended_vcpus(&self) -> Result<usize> {
+        self.check_capability(Capability::MaxRecommendedVCpus)
+            .map(|value| value as usize)
+            .or_else(|_| Ok(4))
+    }
+
+    fn max_vcpus(&self) -> Result<usize> {
+        self.check_capability(Capability::MaxVCpus)
+            .map(|value| value as usize)
+            .or_else(|_| self.max_recommended_vcpus())
+    }
+
+    fn max_vcpu_ids(&self) -> Result<usize> {
+        self.check_capability(Capability::MaxVCpuId)
+            .map(|value| value as usize)
+            .or_else(|_| self.max_vcpus())
+    }
+
     fn create_vcpu<'b>(&'b self, slot: usize) -> Result<Box<accel::VirtualCPU<'b> + 'b>> {
         let slot = slot as i32;
 

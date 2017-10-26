@@ -7,3 +7,4 @@ publish = false
 [dependencies]
 nix = "0.9"
 bitflags = "1"
+vm-x86 = { path = "../../../arches/x86/" }
