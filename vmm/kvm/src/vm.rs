@@ -73,11 +73,6 @@ impl<'a> VirtualMachine<'a> {
         unsafe { kvm::ioctl::create_irq_chip(self.fd())? };
         Ok(())
     }
-
-    /// Reads the state of a in-kernel interrupt controller.
-    fn get_interrupt_controller(&self) -> Result<()> {
-        bail!("err")
-    }
 }
 
 impl<'a> accel::VirtualMachine<'a> for VirtualMachine<'a> {
