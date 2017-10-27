@@ -12,6 +12,16 @@ fn main() {
 
     let vm = acc.create_vm().expect("Failed to create VM");
 
+    let memory = Box::new([0u8; 4096]);
+    let region = accel::MemoryRegion {
+        slot: 0,
+        host: memory.as_ref(),
+        guest: 0,
+    };
+
+    vm.allocate_memory(region)
+        .expect("Failed to allocate memory");
+
     let max_recommended_vcpus = vm.max_recommended_vcpus().unwrap();
     println!("Max recommended vCPUs: {}", max_recommended_vcpus);
     let max_vcpus = vm.max_vcpus().unwrap();

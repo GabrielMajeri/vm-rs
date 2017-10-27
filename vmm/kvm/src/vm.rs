@@ -98,6 +98,24 @@ impl<'a> accel::VirtualMachine<'a> for VirtualMachine<'a> {
             .or_else(|_| self.max_vcpus())
     }
 
+    fn allocate_memory(&self, memory: accel::MemoryRegion) -> Result<()> {
+        use kvm::structs::mem;
+
+        let mut region = mem::MemoryRegion::default();
+
+        region.slot = memory.slot as u16;
+        region.address_space = 0;
+
+        region.host_virt_addr = memory.host.as_ptr() as u64;
+        region.guest_phys_addr = memory.guest as u64;
+
+        region.size = memory.host.len() as u64;
+
+        unsafe { kvm::ioctl::set_memory_region(self.fd(), &mut region)? };
+
+        Ok(())
+    }
+
     fn create_vcpu<'b>(&'b self, slot: usize) -> Result<Box<accel::VirtualCPU<'b> + 'b>> {
         let slot = slot as i32;
 

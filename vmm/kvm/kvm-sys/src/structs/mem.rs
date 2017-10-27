@@ -18,7 +18,7 @@ pub struct MemoryRegion {
     ///
     /// The maximum number of address spaces is returned
     /// by the capability check.
-    pub addr_space: u16,
+    pub address_space: u16,
 
     /// Flags describing the properties of this region.
     pub flags: Flags,
@@ -31,7 +31,7 @@ pub struct MemoryRegion {
     /// Size in bytes of this memory region.
     ///
     /// If `Flags::READ_ONLY` is set, this must be 0.
-    pub memory_size: u64,
+    pub size: u64,
     /// Starting address of the host virtual memory region.
     pub host_virt_addr: u64,
 }

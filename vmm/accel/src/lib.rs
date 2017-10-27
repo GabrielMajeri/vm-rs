@@ -35,6 +35,9 @@ pub trait VirtualMachine<'a> {
     /// Maximum value for a virtual CPU's ID.
     fn max_vcpu_ids(&self) -> Result<usize>;
 
+    /// Allocates a block of host memory to the VM.
+    fn allocate_memory(&self, memory: MemoryRegion) -> Result<()>;
+
     /// Create a new virtual CPU.
     ///
     /// The `id` is a unique number identifying this CPU.
@@ -47,4 +50,18 @@ pub trait VirtualCPU<'a> {
     /// Synchronises the virtual CPU's state between the kernel driver
     /// and the user mode structure.
     fn sync(&self, state: &mut arch::CpuState, set: bool) -> Result<()>;
+}
+
+/// A block of host memory, to be used by the guest.
+///
+/// Memory should be aligned on page / huge page
+/// boundaries for best performance.
+#[derive(Debug, Copy, Clone)]
+pub struct MemoryRegion<'a> {
+    /// The memory slot to operate on.
+    pub slot: u8,
+    /// Host virtual memory block.
+    pub host: &'a [u8],
+    /// Guest physical address.
+    pub guest: usize,
 }
