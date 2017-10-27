@@ -4,7 +4,7 @@ Support for building virtual machines using Rust.
 This project aims to provide virtual machine software similar to [QEMU][QEMU],
 as well as bindings and libraries which support such a virtual machine emulator / manager.
 
-[QEMU]: (https://www.qemu.org/)
+[QEMU]: https://www.qemu.org/
 
 ## Supported CPU architectures
 - x86 / AMD64
