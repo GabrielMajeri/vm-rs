@@ -41,6 +41,12 @@ macro_rules! kvm_ioctl {
             convert($name(fd, data))
         }
     };
+    (write_ptr $name:ident with $code:expr; $st:ty) => {
+        pub unsafe fn $name(fd: RawFd, data: *mut $st) -> Result {
+            ioctl!(write_ptr $name with KVM_IO, $code; $st);
+            convert($name(fd, data))
+        }
+    };
     (readwrite $name:ident with $code:expr; $st:ty) => {
         pub unsafe fn $name(fd: RawFd, data: *mut $st) -> Result {
             ioctl!(readwrite $name with KVM_IO, $code; $st);
@@ -62,4 +68,8 @@ kvm_ioctl!(readwrite get_irq_chip with 0x62; structs::irq::IrqChip);
 
 kvm_ioctl!(none_arg create_vcpu with 0x41);
 
+kvm_ioctl!(read get_regs with 0x81; structs::state::Registers);
+kvm_ioctl!(write_ptr set_regs with 0x82; structs::state::Registers);
+
 kvm_ioctl!(read get_fpu with 0x8C; structs::fpu::FpuState);
+kvm_ioctl!(write_ptr set_fpu with 0x8D; structs::fpu::FpuState);
