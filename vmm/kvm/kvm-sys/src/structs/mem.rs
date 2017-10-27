@@ -1,17 +1,5 @@
 //! Structures related to memory management.
 
-/*
-If KVM_CAP_MULTI_ADDRESS_SPACE is available, bits 16-31 of "slot"
-specifies the address space which is being modified.  They must be
-less than the value that KVM_CHECK_EXTENSION returns for the
-KVM_CAP_MULTI_ADDRESS_SPACE capability.
-
-
-When the KVM_CAP_SYNC_MMU capability is available, changes in the backing of
-the memory region are automatically reflected into the guest.  For example, an
-mmap() that affects the region will be made visible immediately.  Another
-example is madvise(MADV_DROP).
-*/
 /// A guest physical memory slot.
 ///
 /// Memory regions in the same address space must not overlap.
