@@ -1,4 +1,4 @@
-#![feature(decl_macro)]
+//! Low-level, unsafe bindings to the Kernel-based Virtual Machine interface.
 
 #[macro_use]
 extern crate nix;
@@ -8,10 +8,7 @@ extern crate bitflags;
 
 extern crate vm_x86 as x86;
 
-mod macros;
-
-mod errors;
-pub use errors::*;
+pub mod errors;
 
 mod constants;
 pub use constants::*;
@@ -19,11 +16,9 @@ pub use constants::*;
 mod caps;
 pub use caps::Capability;
 
-mod ioctl;
-pub use ioctl::*;
+pub mod ioctl;
 
-mod structs;
-pub use structs::*;
+pub mod structs;
 
 /// The KVM API is based on devices, represented as files.
 /// File descriptors are handles to those files.

@@ -1,8 +1,9 @@
-mod cpuid;
-pub use self::cpuid::*;
+//! Structures used by the KVM interfaces.
 
-mod fpu;
-pub use self::fpu::*;
+pub mod cpuid;
 
-mod run;
-pub use self::run::*;
+pub mod irq;
+
+pub mod fpu;
+
+pub mod run;

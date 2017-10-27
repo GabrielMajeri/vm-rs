@@ -46,7 +46,7 @@ impl<'a> VirtualMachine<'a> {
     /// The return value is a positive number if supported,
     /// and the meaning of this value depends on the specific capability.
     pub fn check_capability(&self, cap: Capability) -> Result<u32> {
-        let value = unsafe { kvm::check_extension(self.fd(), cap as i32)? };
+        let value = unsafe { kvm::ioctl::check_extension(self.fd(), cap as i32)? };
         Ok(value)
     }
 
@@ -70,8 +70,13 @@ impl<'a> VirtualMachine<'a> {
     /// Global System Interrupts 0-15 are routed to both the PIC and I/O APIC.
     /// GSIs 16-23 only go to to the I/O APIC.
     fn create_interrupt_controller(&self) -> Result<()> {
-        unsafe { kvm::create_irq_chip(self.fd())? };
+        unsafe { kvm::ioctl::create_irq_chip(self.fd())? };
         Ok(())
+    }
+
+    /// Reads the state of a in-kernel interrupt controller.
+    fn get_interrupt_controller(&self) -> Result<()> {
+        bail!("err")
     }
 }
 
@@ -97,7 +102,7 @@ impl<'a> accel::VirtualMachine<'a> for VirtualMachine<'a> {
     fn create_vcpu<'b>(&'b self, slot: usize) -> Result<Box<accel::VirtualCPU<'b> + 'b>> {
         let slot = slot as i32;
 
-        let fd = unsafe { kvm::create_vcpu(self.fd(), slot)? };
+        let fd = unsafe { kvm::ioctl::create_vcpu(self.fd(), slot)? };
 
         use std::os::unix::io::FromRawFd;
         let file = unsafe { File::from_raw_fd(fd as i32) };

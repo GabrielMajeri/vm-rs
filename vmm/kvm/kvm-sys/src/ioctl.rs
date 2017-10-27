@@ -1,15 +1,65 @@
-use macros::*;
+//! System call used to interact with the KVM kernel module.
 
-kvm_ioctl_none_arg!(get_api_version with 0x00);
-kvm_ioctl_none_arg!(check_extension with 0x03);
-kvm_ioctl_none_arg!(create_vm with 0x01);
+use structs;
 
-kvm_ioctl_none!(get_vcpu_mmap_size with 0x04);
+use {nix, RawFd};
+use std::io;
+use errors::Result;
 
-kvm_ioctl_rw!(get_emulated_cpuid with 0x09; ::CpuidHeader);
+/// The type of all KVM `ioctl`s.
+const KVM_IO: u8 = 0xAE;
 
-kvm_ioctl_none!(create_irq_chip with 0x60);
+/// Converts a `nix::Result` to `Result<i32, io::Error>`.
+pub fn convert(result: nix::Result<nix::libc::c_int>) -> Result {
+    result.map(|value| value as u32).map_err(|err| {
+        let errno = match err {
+            nix::Error::Sys(errno) => errno,
+            _ => unreachable!(),
+        };
 
-kvm_ioctl_none_arg!(create_vcpu with 0x41);
+        io::Error::from_raw_os_error(errno as i32)
+    })
+}
 
-kvm_ioctl_r!(get_fpu with 0x8C; ::FpuState);
+macro_rules! kvm_ioctl {
+    (none_arg $name:ident with $code:expr) => {
+        pub unsafe fn $name(fd: RawFd, data: i32) -> Result {
+            let code = io!(KVM_IO, $code);
+
+            convert(nix::Errno::result(nix::libc::ioctl(fd, code, data)))
+        }
+    };
+    (none $name:ident with $code:expr) => {
+        pub unsafe fn $name(fd: RawFd) -> Result {
+            ioctl!(none $name with KVM_IO, $code);
+            convert($name(fd))
+        }
+    };
+    (read $name:ident with $code:expr; $st:ty) => {
+        pub unsafe fn $name(fd: RawFd, data: *mut $st) -> Result {
+            ioctl!(read $name with KVM_IO, $code; $st);
+            convert($name(fd, data))
+        }
+    };
+    (readwrite $name:ident with $code:expr; $st:ty) => {
+        pub unsafe fn $name(fd: RawFd, data: *mut $st) -> Result {
+            ioctl!(readwrite $name with KVM_IO, $code; $st);
+            convert($name(fd, data))
+        }
+    };
+}
+
+kvm_ioctl!(none_arg get_api_version with 0x00);
+kvm_ioctl!(none_arg check_extension with 0x03);
+kvm_ioctl!(none_arg create_vm with 0x01);
+
+kvm_ioctl!(none get_vcpu_mmap_size with 0x04);
+
+kvm_ioctl!(readwrite get_emulated_cpuid with 0x09; structs::cpuid::CpuidHeader);
+
+kvm_ioctl!(none create_irq_chip with 0x60);
+kvm_ioctl!(readwrite get_irq_chip with 0x62; structs::irq::IrqChip);
+
+kvm_ioctl!(none_arg create_vcpu with 0x41);
+
+kvm_ioctl!(read get_fpu with 0x8C; structs::fpu::FpuState);

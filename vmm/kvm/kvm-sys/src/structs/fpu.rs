@@ -1,3 +1,5 @@
+//! Structures representing the x87 FPU and SSE / AVX state.
+
 #[derive(Debug, Copy, Clone)]
 #[repr(C)]
 pub struct FpuState {

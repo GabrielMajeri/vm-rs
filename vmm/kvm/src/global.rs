@@ -35,7 +35,7 @@ impl Global {
 
     /// Checks the KVM module's API version.
     fn check_version(&self) -> Result<()> {
-        let current = unsafe { kvm::get_api_version(self.fd(), 0)? };
+        let current = unsafe { kvm::ioctl::get_api_version(self.fd(), 0)? };
         let expected = kvm::API_VERSION;
 
         // Version has to match exactly.
@@ -66,7 +66,7 @@ impl Global {
     /// The return value is a positive number if supported,
     /// and the meaning of this value depends on the specific capability.
     pub fn check_capability(&self, cap: Capability) -> Result<u32> {
-        let value = unsafe { kvm::check_extension(self.fd(), cap as i32)? };
+        let value = unsafe { kvm::ioctl::check_extension(self.fd(), cap as i32)? };
         Ok(value)
     }
 
@@ -82,7 +82,7 @@ impl Global {
 
     /// The size of the vCPU run state structure, in bytes.
     pub fn vcpu_mmap_size(&self) -> Result<usize> {
-        let size = unsafe { kvm::get_vcpu_mmap_size(self.fd())? };
+        let size = unsafe { kvm::ioctl::get_vcpu_mmap_size(self.fd())? };
 
         Ok(size as usize)
     }
@@ -93,7 +93,7 @@ impl accel::Accelerator for Global {
         // This is only relevant for non-x86.
         let machine_type = 0;
 
-        let fd = unsafe { kvm::create_vm(self.fd(), machine_type)? };
+        let fd = unsafe { kvm::ioctl::create_vm(self.fd(), machine_type)? };
 
         use std::os::unix::io::FromRawFd;
         let file = unsafe { File::from_raw_fd(fd as i32) };

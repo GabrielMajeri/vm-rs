@@ -1,3 +1,5 @@
+//! Representation of CPU ID data.
+
 use std::fmt;
 
 /// Header of CPUID entries array.

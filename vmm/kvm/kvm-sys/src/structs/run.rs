@@ -1,3 +1,5 @@
+//! Structures used to control a virtual CPU's execution.
+
 use std::sync::atomic::AtomicBool;
 
 /// Can be obtained by memory mapping a virtual CPU file descriptor.
