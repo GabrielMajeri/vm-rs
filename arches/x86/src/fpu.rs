@@ -1,10 +1,19 @@
-/// Contains the x87 FPU and SSE state.
+//! Structures representing the floating-point unit's state.
+
+/// Contains the x87 FPU state.
 #[derive(Debug, Default, Copy, Clone)]
-pub struct State {
+pub struct X87State {
     /// The control word.
     pub control: ControlWord,
     /// The status word.
     pub status: StatusWord,
+}
+
+/// Contains the SSE state.
+#[derive(Debug, Default, Copy, Clone)]
+pub struct SseState {
+    /// The 16 XMM/YMM registers.
+    pub r: [[u64; 4]; 16],
 }
 
 bitflags! {

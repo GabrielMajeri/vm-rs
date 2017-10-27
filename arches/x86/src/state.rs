@@ -1,5 +1,7 @@
 //! Structures representing the x86 processor state.
 
+use fpu;
+
 /// Stores information about a memory segment.
 #[derive(Debug, Copy, Clone)]
 pub struct Segment {
@@ -45,30 +47,7 @@ pub struct State {
     /// The instruction pointer stores the address of the current instruction.
     pub ip: u64,
     /// The FLAGS register.
-    ///
-    /// Bits:
-    /// - 0: carry flag.
-    /// - 1: reserved, always 1.
-    /// - 2: parity flag.
-    /// - 3: reserved.
-    /// - 4: adjust flag.
-    /// - 5: reserved.
-    /// - 6: zero flag.
-    /// - 7: sign flag.
-    /// - 8: trap flag.
-    /// - 9: interrupt enable flag.
-    /// - 10: direction flag.
-    /// - 11: overflow flag.
-    /// - 12-13: I/O privilege level.
-    /// - 14: nested task flag.
-    /// - 15: reserved.
-    /// - 16: resume flag.
-    /// - 17: virtual 8086 flag.
-    /// - 18: alignment check.
-    /// - 19: virtual interrupt flag.
-    /// - 20: virtual interrupt pending.
-    /// - 21: able to use CPUID instruction.
-    pub flags: u64,
+    pub flags: Flags,
     /// The current code segment, a segment of memory which contains executable code.
     pub cs: Segment,
     /// The current data segment.
@@ -82,11 +61,12 @@ pub struct State {
     /// Extra segment #3.
     pub gs: Segment,
     /// Control register 0.
-    ///
-    /// Bits:
-    /// - 0: protected mode enable.
-    /// TODO: finish
     pub cr0: u64,
+
+    /// The x87 floating-point unit's state.
+    pub fpu: fpu::X87State,
+    /// The SSE / AVX registers.
+    pub sse: fpu::SseState,
 }
 
 impl Default for State {
@@ -127,9 +107,84 @@ impl Default for State {
             es: ds,
             fs: ds,
             gs: ds,
-            flags: 0b10,
+            flags: Flags::default(),
             // The CD and NW flags and bit 4 are set.
             cr0: (1 << 30) | (1 << 29) | (1 << 4),
+            fpu: fpu::X87State::default(),
+            sse: fpu::SseState::default(),
         }
+    }
+}
+
+bitflags! {
+    /// The FLAGS register contains flags set by various operations,
+    /// as well as some useful flags which change the behaviour of
+    /// basic operations.
+    ///
+    /// All other bits are reserved and must be preserved.
+    pub struct Flags: u64 {
+        /// Carry flag, set if last operation resulted in a carry.
+        const CARRY = 1 << 0;
+
+        /// Reserved, must always be set.
+        const RESERVED_ONE = 1 << 1;
+
+        /// Parity of last result.
+        const PARITY = 1 << 2;
+
+        /// Adjust flag. Used for binary-coded decimals.
+        const ADJUST = 1 << 4;
+
+        /// Last value was 0.
+        const ZERO = 1 << 6;
+
+        /// Sign of last result.
+        const SIGN = 1 << 7;
+
+        /// If set, stops execution after every instruction,
+        /// for debugging purposes.
+        const TRAP = 1 << 8;
+
+        /// Enables or disables extern interrupts.
+        ///
+        /// Note that exceptions are NMIs are not affected.
+        const INTERRUPT = 1 << 9;
+
+        /// If set, direction of `rep` instructions is backwards.
+        const DIRECTION = 1 << 10;
+
+        /// Set if an operation resulted in an overflow.
+        const OVERFLOW = 1 << 11;
+
+        /// Privilege level required for port I/O operations.
+        const IOPRIV = 0b11 << 12;
+
+        /// Indicates that a system task invoked another
+        /// using a CALL instruction.
+        const NESTED_TASK = 1 << 14;
+
+        /// Used to temporarily disable debug exceptions.
+        const RESUME = 1 << 16;
+
+        /// Virtual 8086 mode.
+        const VIRTUAL_8086 = 1 << 17;
+
+        /// When set, all memory accesses must be aligned.
+        const ALIGNMENT_CHECK = 1 << 18;
+
+        /// Enables virtual interrupts.
+        const VIRTUAL_INTERRUPT = 1 << 19;
+
+        /// A virtual interrupt is pending.
+        const VIRTUAL_INTERRUPT_PENDING = 1 << 20;
+
+        /// CPU supports CPUID instruction.
+        const CPUID = 1 << 21;
+    }
+}
+
+impl Default for Flags {
+    fn default() -> Self {
+        Flags::RESERVED_ONE
     }
 }
