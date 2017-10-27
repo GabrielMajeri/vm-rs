@@ -32,7 +32,11 @@ impl<'a> VirtualMachine<'a> {
 
     /// Checks to ensure required capabilities are present.
     fn check_required_capabilities(&self) -> Result<()> {
-        const REQUIRED: &[Capability] = &[Capability::IrqChip, Capability::UserMemory];
+        const REQUIRED: &[Capability] = &[
+            Capability::IrqChip,
+            Capability::UserMemory,
+            Capability::ReadOnlyMemory,
+        ];
 
         for &cap in REQUIRED {
             self.require_capability(cap)?;

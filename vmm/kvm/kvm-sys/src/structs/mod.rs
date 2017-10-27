@@ -4,6 +4,8 @@ pub mod cpuid;
 
 pub mod irq;
 
+pub mod mem;
+
 pub mod state;
 
 pub mod fpu;

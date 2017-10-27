@@ -11,6 +11,8 @@ pub enum Capability {
     UserMemory = 3,
     /// Soft vCPU limit.
     MaxRecommendedVCpus = 9,
+    /// Maximum number of memory slots per VM.
+    MaxMemSlots = 10,
     /// Hard vCPU limit.
     MaxVCpus = 66,
     /// Support for ROM regions.
@@ -19,6 +21,10 @@ pub enum Capability {
     /// Support for checking capabilities on VMs.
     /// Required for most other capabilities.
     CheckExtensionVM = 105,
+    /// Multiple memory address spaces.
+    ///
+    /// Returned value is maximum number of address spaces.
+    MultiAddressSpace = 118,
     /// Maximum ID for virtual CPUs.
     MaxVCpuId = 128,
 }

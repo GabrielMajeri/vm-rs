@@ -66,6 +66,8 @@ kvm_ioctl!(readwrite get_emulated_cpuid with 0x09; structs::cpuid::CpuidHeader);
 kvm_ioctl!(none create_irq_chip with 0x60);
 kvm_ioctl!(readwrite get_irq_chip with 0x62; structs::irq::IrqChip);
 
+kvm_ioctl!(write_ptr set_memory_region with 0x46; structs::mem::MemoryRegion);
+
 kvm_ioctl!(none_arg create_vcpu with 0x41);
 
 kvm_ioctl!(read get_regs with 0x81; structs::state::Registers);
