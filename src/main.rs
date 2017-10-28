@@ -24,8 +24,11 @@ fn main() {
             mem[0] = 0xB0;
             mem[1] = 127;
 
-            // Halt.
-            mem[2] = 0xF4;
+            // Output to port.
+            mem[2] = 0xE6;
+            // The actual port.
+            // TODO: come up with a port for debugging.
+            mem[3] = 0;
         }
 
         memory
@@ -48,15 +51,26 @@ fn main() {
     let max_vcpu_ids = vm.max_vcpu_ids().unwrap();
     println!("Max vCPU IDs: {}", max_vcpu_ids);
 
-    let vcpu = vm.create_vcpu(0).expect("Failed to create vCPU");
+    struct CpuCallbacks;
 
-    let mut state = x86::state::State::default();
+    impl accel::CpuCallbacks for CpuCallbacks {
+        fn port_io(
+            &self,
+            port: u16,
+            _output: bool,
+            buffer: &mut [u8],
+            _element_size: usize,
+        ) -> accel::errors::Result<()> {
+            println!("I/O on port {:X}", port);
+            println!("Data: {:?}", buffer);
 
-    vcpu.sync(&mut state, false).unwrap();
+            Ok(())
+        }
+    }
 
-    let exit_state = vcpu.run().expect("Failed to run vCPU");
+    let cbs = CpuCallbacks;
 
-    vcpu.sync(&mut state, false).unwrap();
+    let vcpu = vm.create_vcpu(0, &cbs).expect("Failed to create vCPU");
 
-    println!("{:X}", state.r[0]);
+    let _exit_state = vcpu.run().expect("Failed to run vCPU");
 }

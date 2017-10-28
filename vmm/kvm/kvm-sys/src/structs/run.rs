@@ -102,7 +102,8 @@ pub union ExitData {
 #[derive(Debug, Copy, Clone)]
 #[repr(C)]
 pub struct IoState {
-    pub direction: IoDirection,
+    /// True if we must write data, false if we must read data.
+    pub direction: bool,
     /// Size in bytes of the I/O element.
     pub size: u8,
     /// The I/O port.
@@ -111,13 +112,6 @@ pub struct IoState {
     pub count: u32,
     /// Offset used when `mmap`ing the file descriptor.
     pub data_offset: u64,
-}
-
-#[derive(Debug, Copy, Clone)]
-#[repr(u8)]
-pub enum IoDirection {
-    In = 0,
-    Out = 1,
 }
 
 #[derive(Debug, Copy, Clone)]

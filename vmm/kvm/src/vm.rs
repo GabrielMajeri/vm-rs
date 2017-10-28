@@ -156,7 +156,11 @@ impl<'a> accel::VirtualMachine<'a> for VirtualMachine<'a> {
         Ok(())
     }
 
-    fn create_vcpu<'b>(&'b self, slot: usize) -> Result<Box<accel::VirtualCPU<'b> + 'b>> {
+    fn create_vcpu<'b>(
+        &'b self,
+        slot: usize,
+        cb: &'b accel::CpuCallbacks,
+    ) -> Result<Box<accel::VirtualCPU<'b> + 'b>> {
         let slot = slot as i32;
 
         let fd = unsafe { kvm::ioctl::create_vcpu(self.fd(), slot)? };
@@ -164,7 +168,7 @@ impl<'a> accel::VirtualMachine<'a> for VirtualMachine<'a> {
         use std::os::unix::io::FromRawFd;
         let file = unsafe { File::from_raw_fd(fd as i32) };
 
-        let vcpu = VirtualCPU::new(self, file)?;
+        let vcpu = VirtualCPU::new(self, file, cb)?;
 
         Ok(Box::new(vcpu))
     }

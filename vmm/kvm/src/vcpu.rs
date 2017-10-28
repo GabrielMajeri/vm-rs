@@ -1,5 +1,6 @@
 use accel;
 use accel::errors::Result;
+use accel::CpuCallbacks;
 use vm::VirtualMachine;
 use std::fs::File;
 use x86;
@@ -8,23 +9,24 @@ use kvm;
 use kvm::RawFd;
 use kvm::structs::run;
 use memmap as mm;
-use std::mem;
+use std::{mem, slice};
 
 pub struct VirtualCPU<'a> {
     vm: &'a VirtualMachine<'a>,
     file: File,
     run: mm::Mmap,
+    cb: &'a CpuCallbacks,
 }
 
 impl<'a> VirtualCPU<'a> {
     /// Initializes the virtual CPU.
-    pub fn new(vm: &'a VirtualMachine, file: File) -> Result<Self> {
+    pub fn new(vm: &'a VirtualMachine, file: File, cb: &'a CpuCallbacks) -> Result<Self> {
         let prot = mm::Protection::ReadWrite;
         let offset = 0;
         let len = 64;
         let run = mm::Mmap::open_with_offset(&file, prot, offset, len)?;
 
-        let vcpu = VirtualCPU { vm, file, run };
+        let vcpu = VirtualCPU { vm, file, run, cb };
 
         Ok(vcpu)
     }
@@ -204,6 +206,34 @@ impl<'a> accel::VirtualCPU<'a> for VirtualCPU<'a> {
         use self::run::ExitReason as ER;
         use accel::ExitState as ES;
         let state = match run.exit_reason {
+            ER::Io => {
+                let io = unsafe { &run.exit.io };
+
+                let len = io.count as usize;
+                let element_size = io.size as usize;
+                let buf_size = len * element_size;
+
+                let port = io.port;
+                let output = io.direction;
+
+                // The buffer must be `mmap`ed.
+                let mut mmap = {
+                    let prot = mm::Protection::ReadWrite;
+                    let offset = io.data_offset as usize;
+                    let len = buf_size;
+                    mm::Mmap::open_with_offset(&self.file, prot, offset, len)?
+                };
+
+                let buffer = unsafe {
+                    let ptr = mmap.mut_ptr();
+                    let len = len;
+                    slice::from_raw_parts_mut(ptr, len)
+                };
+
+                self.cb.port_io(port, output, buffer, element_size)?;
+
+                ES::Shutdown
+            }
             ER::Unknown => {
                 let hw_exit_reason = unsafe { run.exit.unknown };
                 ES::Unknown(hw_exit_reason)

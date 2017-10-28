@@ -42,7 +42,11 @@ pub trait VirtualMachine<'a> {
     ///
     /// The `id` is a unique number identifying this CPU.
     /// On x86, this will become the APIC ID of the vCPU.
-    fn create_vcpu<'b>(&'b self, id: usize) -> Result<Box<VirtualCPU<'b> + 'b>>;
+    fn create_vcpu<'b>(
+        &'b self,
+        id: usize,
+        callbacks: &'b CpuCallbacks,
+    ) -> Result<Box<VirtualCPU<'b> + 'b>>;
 }
 
 /// A virtual CPU represents a single hardware-thread in the guest VM.
@@ -55,6 +59,8 @@ pub trait VirtualCPU<'a> {
     fn sync(&self, state: &mut arch::CpuState, set: bool) -> Result<()>;
 
     /// Runs the virtual CPU on the current thread.
+    // TODO: instead of an exit state structure,
+    // we should move everything to callbacks (eventually).
     fn run(&self) -> Result<ExitState>;
 }
 
@@ -74,9 +80,30 @@ pub struct MemoryRegion<'a> {
     pub guest: usize,
 }
 
+/// Trait containing callbacks which control the vCPU's execution.
+pub trait CpuCallbacks {
+    /// Function called to emulate a port-I/O instruction.
+    ///
+    /// The parameters are:
+    /// - `port` is the 16-bit I/O port.
+    /// - `output` describes whether the data must be sent to the guest (true)
+    ///   or is received (false).
+    /// - `buffer` is a packed array of elements to be read or transferred.
+    /// - `element_size` is the size in bytes of each element.
+    fn port_io(
+        &self,
+        port: u16,
+        output: bool,
+        buffer: &mut [u8],
+        element_size: usize,
+    ) -> Result<()>;
+}
+
 /// Structure providing additional data on the vCPU's exit.
 #[derive(Debug, Copy, Clone)]
 pub enum ExitState {
+    /// The virtual machine gracefully shut down.
+    Shutdown,
     /// An unknown / unhandled error occured.
     Unknown(arch::ExitReason),
 }
