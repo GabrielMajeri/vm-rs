@@ -70,8 +70,15 @@ kvm_ioctl!(write_ptr set_memory_region with 0x46; structs::mem::MemoryRegion);
 
 kvm_ioctl!(none_arg create_vcpu with 0x41);
 
+kvm_ioctl!(none_arg set_tss_addr with 0x47);
+kvm_ioctl!(write_ptr set_identity_map_addr with 0x48; u64);
+
+kvm_ioctl!(none_arg run with 0x80);
+
 kvm_ioctl!(read get_regs with 0x81; structs::state::Registers);
 kvm_ioctl!(write_ptr set_regs with 0x82; structs::state::Registers);
+kvm_ioctl!(read get_sregs with 0x83; structs::state::SpecialRegisters);
+kvm_ioctl!(write_ptr set_sregs with 0x84; structs::state::SpecialRegisters);
 
 kvm_ioctl!(read get_fpu with 0x8C; structs::fpu::FpuState);
 kvm_ioctl!(write_ptr set_fpu with 0x8D; structs::fpu::FpuState);

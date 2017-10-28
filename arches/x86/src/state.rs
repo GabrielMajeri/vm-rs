@@ -3,7 +3,7 @@
 use fpu;
 
 /// Stores information about a memory segment.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct Segment {
     /// The starting physical address of this segment,
     pub base: u64,
@@ -11,20 +11,30 @@ pub struct Segment {
     pub limit: u32,
     /// The selector of this segment. Equal to the index in the GDT.
     pub selector: u16,
-    /// Bits:
-    /// - 0: Accessed
-    /// - 1: Writable (for data) / Readable (for code)
-    /// - 2: Direction (for data) / Conforming (for code)
-    /// - 3: True for code, false for data.
-    /// - 4: True for user descriptors, false for system descriptors.
-    /// - 5-6: Descriptor Privilege Level.
-    /// - 7: Is present.
-    /// - 8-11: Limit (unused).
-    /// - 12: available for OS to use.
-    /// - 13: Is in long mode.
-    /// - 14: Operand size (16 bit / 32 bit).
-    /// - 15: Granularity (byte / 4-KiB).
-    pub flags: u16,
+    /// True if segment is present.
+    pub present: bool,
+    /// True if user segment, false if system segment.
+    pub user_system: bool,
+    /// True for code, false for data.
+    pub code_data: bool,
+    /// Writable (for data) / readable (for code).
+    pub write_read: bool,
+    /// Direction (for data) / Conforming (for code)
+    pub direction_conforming: bool,
+    /// Descriptor Privilege Level.
+    pub dpl: u8,
+    /// True if this is a long mode segment.
+    pub long: bool,
+    /// Operand size (16 bit / 32 bit).
+    ///
+    /// Must be 0 in 64-bit mode.
+    pub op_size: bool,
+    /// Granularity (byte / 4-KiB).
+    pub granularity: bool,
+    /// Set by the CPU when it is accessed.
+    pub accessed: bool,
+    /// Available for OS to use.
+    pub available: bool,
 }
 
 /// Stores the state for an `x86_64` CPU.
@@ -82,21 +92,24 @@ impl Default for State {
 
         // We must start at 16 bytes before 4 GiB.
         let ip = 0xFFF0;
-        let cs = Segment {
-            base: 0xFFFF_0000,
-            selector: 0xF000,
-            limit: 0xFFFF,
-            // Accessed, readable, user, present.
-            flags: 0b1001_0011,
-        };
 
-        let ds = Segment {
+        let common = Segment {
             base: 0,
             selector: 0,
             limit: 0xFFFF,
-            // Accessed, readable, user, present.
-            flags: 0b1001_0011,
+            present: true,
+            user_system: true,
+            code_data: true,
+            ..Segment::default()
         };
+
+        let cs = Segment {
+            base: 0xFFFF_0000,
+            selector: 0xF000,
+            ..common
+        };
+
+        let ds = common;
 
         State {
             r,

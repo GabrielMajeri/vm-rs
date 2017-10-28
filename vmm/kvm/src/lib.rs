@@ -26,6 +26,8 @@ extern crate kvm_sys as kvm;
 
 extern crate vm_x86 as x86;
 
+extern crate memmap;
+
 mod global;
 mod vm;
 mod vcpu;

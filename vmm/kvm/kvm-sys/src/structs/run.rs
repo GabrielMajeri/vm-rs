@@ -59,7 +59,23 @@ bitflags! {
 #[derive(Debug, Copy, Clone)]
 #[repr(u32)]
 pub enum ExitReason {
+    /// Hardware exit reason is valid.
     Unknown = 0,
+    /// Port I/O emulation.
+    Io = 2,
+    Debug = 4,
+    Hlt = 5,
+    Mmio = 6,
+    IrqWindowOpen = 7,
+    Shutdown = 8,
+    FailEntry = 9,
+    Interrupt = 10,
+    // TODO: is this actually used anywhere?
+    SetTpr = 11,
+    TprAccess = 12,
+    Nmi = 16,
+    /// An internal error occured in KVM.
+    InternalError = 17,
 }
 
 /// Architecture-specific exit reason.
@@ -67,12 +83,14 @@ pub type HardwareExitReason = ::x86::vmx::ExitReason;
 
 #[repr(C)]
 pub union ExitData {
-/// The vCPU stopped running due to an unknown reason.
+    /// The vCPU stopped running due to an unknown reason.
     pub unknown: HardwareExitReason,
-/// The vCPU failed to run.
+    /// The vCPU failed to run.
     pub fail_entry: HardwareExitReason,
-/// The guest attempted to do port I/O.
+    /// The guest attempted to do port I/O.
     pub io: IoState,
+    /// An internal kernel module error occured.
+    pub internal: InternalError,
     _padding: [u8; 256],
 }
 
@@ -100,4 +118,18 @@ pub struct IoState {
 pub enum IoDirection {
     In = 0,
     Out = 1,
+}
+
+#[derive(Debug, Copy, Clone)]
+#[repr(u32)]
+pub enum InternalError {
+    /// Emulating an instruction failed.
+    ///
+    /// On x86, this could mean the host does not support
+    /// Second-Level Address Translation.
+    Emulation = 1,
+    /// An exception occured while handling an exception.
+    SimultaneousExceptions = 2,
+    /// The VM exited during event delivery.
+    EventDelivery = 3,
 }

@@ -20,6 +20,9 @@ impl<'a> VirtualMachine<'a> {
 
         vm.create_interrupt_controller()?;
 
+        vm.set_identity_mapping()?;
+        vm.set_tss_address()?;
+
         Ok(vm)
     }
 
@@ -36,6 +39,8 @@ impl<'a> VirtualMachine<'a> {
             Capability::IrqChip,
             Capability::UserMemory,
             Capability::ReadOnlyMemory,
+            Capability::SetIdentityMapAddress,
+            Capability::SetTssAddr,
         ];
 
         for &cap in REQUIRED {
@@ -75,6 +80,41 @@ impl<'a> VirtualMachine<'a> {
     /// GSIs 16-23 only go to to the I/O APIC.
     fn create_interrupt_controller(&self) -> Result<()> {
         unsafe { kvm::ioctl::create_irq_chip(self.fd())? };
+        Ok(())
+    }
+
+    /// Returns the base address of the EPT.
+    fn ept_address(&self) -> u64 {
+        // Reserve up to 16-MiB of memory for the BIOS.
+        let bios_base = 0xFF00_0000;
+
+        let page_size = 4096;
+
+        // We will use the 4 pages below the BIOS ROM.
+        bios_base - (4 * page_size)
+    }
+
+    /// Identity maps the required pages for the BIOS and the EPT.
+    fn set_identity_mapping(&self) -> Result<()> {
+        let mut base = self.ept_address();
+
+        unsafe { kvm::ioctl::set_identity_map_addr(self.fd(), &mut base)? };
+
+        Ok(())
+    }
+
+    /// Allocates a 3-page region in the first 4-GiBs of the guest address space.
+    ///
+    /// This must not conflict with any other memory slot.
+    ///
+    /// This is required on Intel-based hosts.
+    fn set_tss_address(&self) -> Result<()> {
+        let address = self.ept_address() + 0x1000;
+
+        let address = address as i32;
+
+        unsafe { kvm::ioctl::set_tss_addr(self.fd(), address)? };
+
         Ok(())
     }
 }

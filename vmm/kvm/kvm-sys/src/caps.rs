@@ -9,10 +9,13 @@ pub enum Capability {
     /// This cap is always required since there is no other
     /// (non-obsolete) way of allocating memory.
     UserMemory = 3,
+    /// Required for 16-bit mode on Intel CPUs.
+    SetTssAddr = 4,
     /// Soft vCPU limit.
     MaxRecommendedVCpus = 9,
     /// Maximum number of memory slots per VM.
     MaxMemSlots = 10,
+    SetIdentityMapAddress = 37,
     /// Hard vCPU limit.
     MaxVCpus = 66,
     /// Support for ROM regions.

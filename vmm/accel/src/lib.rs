@@ -46,13 +46,21 @@ pub trait VirtualMachine<'a> {
 }
 
 /// A virtual CPU represents a single hardware-thread in the guest VM.
+///
+/// For maximum performance and compatibility, each virtual CPU should
+/// be assigned a thread and only run on that thread.
 pub trait VirtualCPU<'a> {
     /// Synchronises the virtual CPU's state between the kernel driver
     /// and the user mode structure.
     fn sync(&self, state: &mut arch::CpuState, set: bool) -> Result<()>;
+
+    /// Runs the virtual CPU on the current thread.
+    fn run(&self) -> Result<ExitState>;
 }
 
 /// A block of host memory, to be used by the guest.
+///
+/// Most accelerators require the memory region to be page-aligned.
 ///
 /// Memory should be aligned on page / huge page
 /// boundaries for best performance.
@@ -64,4 +72,11 @@ pub struct MemoryRegion<'a> {
     pub host: &'a [u8],
     /// Guest physical address.
     pub guest: usize,
+}
+
+/// Structure providing additional data on the vCPU's exit.
+#[derive(Debug, Copy, Clone)]
+pub enum ExitState {
+    /// An unknown / unhandled error occured.
+    Unknown(arch::ExitReason),
 }
