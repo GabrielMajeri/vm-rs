@@ -123,6 +123,10 @@ impl<'a> VirtualCPU<'a> {
 
         sregs.cs = into(state.cs);
         sregs.ds = into(state.ds);
+        sregs.ss = into(state.ss);
+        sregs.es = into(state.es);
+        sregs.fs = into(state.fs);
+        sregs.gs = into(state.gs);
 
         // TODO: finish.
 
@@ -162,6 +166,10 @@ impl<'a> VirtualCPU<'a> {
 
         state.cs = into(sregs.cs);
         state.ds = into(sregs.ds);
+        state.ss = into(sregs.ss);
+        state.es = into(sregs.es);
+        state.fs = into(sregs.fs);
+        state.gs = into(sregs.gs);
 
         // TODO: finish.
 
