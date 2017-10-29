@@ -6,6 +6,11 @@ authors = ["Gabriel Majeri <gabriel.majeri6@gmail.com>"]
 [dependencies]
 vm-x86 = { path = "arches/x86" }
 accel = { path = "vmm/accel" }
+
+[target.'cfg(target_os = "linux")'.dependencies]
 kvm = { path = "vmm/kvm" }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+hax = { path = "vmm/hax" }
 
 [workspace]

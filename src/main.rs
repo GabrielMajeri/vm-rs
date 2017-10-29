@@ -4,11 +4,24 @@
 #![cfg_attr(feature = "cargo-clippy", warn(clippy))]
 
 extern crate accel;
+#[cfg(target_os = "linux")]
 extern crate kvm;
+#[cfg(target_os = "windows")]
+extern crate hax;
 extern crate vm_x86 as x86;
 
+#[cfg(target_os = "linux")]
+fn create_accelerator() -> Box<accel::Accelerator> {
+    kvm::create().expect("Failed to create KVM accelerator")
+}
+
+#[cfg(target_os = "windows")]
+fn create_accelerator() -> Box<accel::Accelerator> {
+    hax::create().expect("Failed to create HAX accelerator")
+}
+
 fn main() {
-    let acc = kvm::create().expect("Failed to create accelerator");
+    let acc = create_accelerator();
 
     let vm = acc.create_vm().expect("Failed to create VM");
 
