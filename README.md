@@ -10,7 +10,11 @@ as well as bindings and libraries which support such a virtual machine emulator 
 - x86 / AMD64
 
 ## Supported hardware-acceleration
-- Kernel-based Virtual Machine
+- [Kernel-based Virtual Machine][kvm] (on Linux, Intel / AMD)
+- [Hardware Accelerated Execution][hax] (on Windows, Intel only)
+
+[kvm]: https://www.linux-kvm.org
+[hax]: https://software.intel.com/en-us/articles/intel-hardware-accelerated-execution-manager-intel-haxm
 
 ## License
 All source code in this repository is dual licensed under
