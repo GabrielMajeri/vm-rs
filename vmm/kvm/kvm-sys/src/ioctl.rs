@@ -22,11 +22,12 @@ pub fn convert(result: nix::Result<nix::libc::c_int>) -> Result {
 }
 
 macro_rules! kvm_ioctl {
+    // KVM's API wrongly uses `io!` instead of `iow!`,
+    // so we cannot use the `none` ioctl provided by nix.
     (none_arg $name:ident with $code:expr) => {
         pub unsafe fn $name(fd: RawFd, data: i32) -> Result {
-            let code = io!(KVM_IO, $code);
-
-            convert(nix::Errno::result(nix::libc::ioctl(fd, code, data)))
+            ioctl!(bad write_int $name with io!(KVM_IO, $code));
+            convert($name(fd, data))
         }
     };
     (none $name:ident with $code:expr) => {
