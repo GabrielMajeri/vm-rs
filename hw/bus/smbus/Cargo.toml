@@ -1,0 +1,8 @@
+[package]
+name = "smbus"
+version = "0.1.0"
+authors = ["Gabriel Majeri <gabriel.majeri6@gmail.com>"]
+publish = false
+
+[dependencies]
+i2c = { path = "../i2c" }
